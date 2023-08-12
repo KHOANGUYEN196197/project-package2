@@ -9,13 +9,15 @@ $(function () {
 })
 
 
+
+
 function fetchListProduct() {
     const listProductLocal = JSON.parse(localStorage.getItem("listProduct"));
     const listManufacturerLocal = JSON.parse(localStorage.getItem("listManufacturer"));
     const listCategoryLocal = JSON.parse(localStorage.getItem("listCategory"));
     listProduct = listProductLocal ? listProductLocal : [];
-    listManufacturer = listManufacturerLocal ? listManufacturerLocal : [];
-    listCategory = listCategoryLocal ? listCategoryLocal : [];
+    listManufacturer = listManufacturerLocal ? listManufacturerLocal : []
+    listCategory = listCategoryLocal ? listCategoryLocal : []
     $("#product-list").empty();
 
     listProduct.forEach(product => {
