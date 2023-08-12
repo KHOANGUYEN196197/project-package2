@@ -26,11 +26,52 @@ function handleShowCategory() {
 function handleShowProduct() {
   $("#section-admin").load("./productAdmin.html");
   setTimeout(() => {
+    checkLocal();
     fetchListProduct();
   }, 500);
 }
 function handleShowAcount() {
   $("#section-admin").load("./acountAdmin.html");
+}
+function checkLocal() {
+  //kiem tra xem duoi local-storage co 2 cai danh sach category va manufacture chua
+  const listManufacturerLocal = JSON.parse(localStorage.getItem("listManufacturer"));
+  const listCategoryLocal = JSON.parse(localStorage.getItem("listCategory"));
+
+  if (!listManufacturerLocal) {
+    localStorage.setItem("listManufacturer", JSON.stringify([{
+      id: 1,
+      name: "SAMSUNG"
+    }, {
+      id: 2,
+      name: 'APPLE'
+    },
+    {
+      id: 3,
+      name: 'XiAOMI'
+    },
+    {
+      id: 4,
+      name: "OPPO"
+    }
+    ]));
+
+  }
+  if (!listCategoryLocal) {
+    localStorage.setItem("listCategory", JSON.stringify([{
+      id: 1,
+      name: 'Điện Thoại'
+    },
+    {
+      id: 2,
+      name: 'Tablet'
+    },
+    {
+      id: 3,
+      name: 'Laptop'
+    }
+    ]));
+  }
 }
 
 function fetchListProduct() {
@@ -39,8 +80,8 @@ function fetchListProduct() {
   const listCategoryLocal = JSON.parse(localStorage.getItem("listCategory"));
 
   listProduct = listProductLocal ? listProductLocal : [];
-  listManufacturer = listManufacturerLocal ? listManufacturerLocal : [];
-  listCategory = listCategoryLocal ? listCategoryLocal : [];
+  listManufacturer = listManufacturerLocal ? listManufacturerLocal : []
+  listCategory = listCategoryLocal ? listCategoryLocal : []
 
   fetchListManufactureAdmin();
   fetchListCategoryAdmin();
