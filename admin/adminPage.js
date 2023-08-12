@@ -1,76 +1,7 @@
-var listProduct = [
-  {
-    name: "Iphone 14",
-    price: "30.990.000₫",
-    info: "6.9 inches",
-    detail: "ProductDetail1",
-    ratingStar: "5",
-    imageName:
-      "https://cdn2.cellphones.com.vn/358x358,webp,q100/media/catalog/product/t/_/t_m_18.png",
-    manufacturerName: "2",
-    categoryName: "2",
-    id: "1",
-  },
-  {
-    name: "Iphone 14",
-    price: "30.990.000₫",
-    info: "6.9 inches",
-    detail: "ProductDetail1",
-    ratingStar: "5",
-    imageName:
-      "https://cdn2.cellphones.com.vn/358x358,webp,q100/media/catalog/product/t/_/t_m_18.png",
-    manufacturerName: "2",
-    categoryName: "2",
-    id: "2",
-  },
-  {
-    name: "Iphone 14",
-    price: "30.990.000₫",
-    info: "6.9 inches",
-    detail: "ProductDetail1",
-    ratingStar: "5",
-    imageName:
-      "https://cdn2.cellphones.com.vn/358x358,webp,q100/media/catalog/product/t/_/t_m_18.png",
-    manufacturerName: "2",
-    categoryName: "2",
-    id: "3",
-  }
-];
-var listManufacturer = [
-  {
-    id: 1,
-    name: "SAMSUNG"
-  }, {
-    id: 2,
-    name: 'APPLE'
-  },
-  {
-    id: 3,
-    mane: 'XiAOMI'
-  },
-  {
-    id: 4,
-    name: "OPPO"
-  }
-];
-var listCategory = [
-
-  {
-
-    id: 1,
-    name: 'Điện Thoại'
-  },
-  {
-
-    id: 2,
-    name: 'Tablet'
-  },
-  {
-
-    id: 3,
-    name: 'Laptop'
-  }
-];
+var listProduct = [];
+var listManufacturer = [];
+var listCategory = [];
+var idUpdate = "";
 
 
 
@@ -81,6 +12,9 @@ $(function () {
   $("#filter-manufacturers").load("./filterManufacturers.html");
   $("#filter-categorys").load("./filterCategorys.html");
   handleShowProduct();
+  // localStorage.setItem("listProduct", JSON.stringify(listProduct));
+  // localStorage.setItem("listCategory", JSON.stringify(listCategory));
+  // localStorage.setItem("listManufacturer", JSON.stringify(listManufacturer));
 });
 
 function handleShowManufacturer() {
@@ -93,7 +27,6 @@ function handleShowProduct() {
   $("#section-admin").load("./productAdmin.html");
   setTimeout(() => {
     fetchListProduct();
-
   }, 500);
 }
 function handleShowAcount() {
@@ -101,47 +34,185 @@ function handleShowAcount() {
 }
 
 function fetchListProduct() {
+  const listProductLocal = JSON.parse(localStorage.getItem("listProduct"));
+  const listManufacturerLocal = JSON.parse(localStorage.getItem("listManufacturer"));
+  const listCategoryLocal = JSON.parse(localStorage.getItem("listCategory"));
+
+  listProduct = listProductLocal ? listProductLocal : [];
+  listManufacturer = listManufacturerLocal ? listManufacturerLocal : [];
+  listCategory = listCategoryLocal ? listCategoryLocal : [];
+
+  fetchListManufactureAdmin();
+  fetchListCategoryAdmin();
+
+
+
+  console.log(123, { listProductLocal, listManufacturerLocal, listCategoryLocal });
+
+
   $("#tbProductAdmin").empty();
+
   listProduct.forEach(product => {
     $("#tbProductAdmin").append(`
     <tr style="vertical-align: middle">
-              <td>${product.id}</td>
-              <td>S22 Ultra 5G</td>
-              <td>30.990.000₫</td>
-              <td>6.9 inches</td>
-              <td>ProductDetail1</td>
-              <td>5</td>
-              <td>
-                <img
-                  style="width: 50px; height: 50px"
-                  src="https://cdn2.cellphones.com.vn/358x358,webp,q100/media/catalog/product/t/_/t_m_18.png"
-                />
-              </td>
-              <td>SAMSUNG</td>
-              <td>Điện thoại</td>
-              <td>
-                <button
-                  onclick="handleEditProduct()"
-                  type="button"
-                  class="btn btn-warning"
-                >
-                  Edit
-                </button>
-              </td>
-              <td>
-                <button type="button" class="btn btn-danger">Delete</button>
-              </td>
-            </tr>
+      <td>${product.id}</td>
+      <td>${product.name}</td>
+      <td>${product.price}</td>
+      <td>${product.info}</td>
+      <td>${product.detail}</td>
+      <td>${product.ratingStar}</td>
+      <td> <img style="width: 50px; height: 50px" src="${product.imageName}"/> </td>
+      <td>${listManufacturer.filter((manufacture) => manufacture.id === +product.manufacturerID)[0].name}</td>
+      <td>${listCategory.find((category) => category.id === +product.categoryID).name}</td>
+      <td> <button onclick="handleEditProduct(${product.id})" type="button" class="btn btn-warning"> Edit </button> </td>
+      <td> <button onClick="handleDeleteProduct(${product.id})" type="button" class="btn btn-danger">Delete</button> </td>
+    </tr>
     `)
   });
 }
 
-
-
-function handleEditProduct() {
+function handleEditProduct(id) {
+  idUpdate = id;
+  const index = listProduct.findIndex((product) => +product.id === +id);
+  $("#IdUpdate").val(listProduct[index].id);
+  $("#NameUpdate").val(listProduct[index].name);
+  $("#PriceUpdate").val(listProduct[index].price);
+  $("#InfoUpdate").val(listProduct[index].info);
+  $("#DetailUpdate").val(listProduct[index].detail);
+  $("#StarUpdate").val(listProduct[index].ratingStar);
+  $("#ImageUpdate").val(listProduct[index].imageName);
+  $("#ManufacturerUpdate").val(listProduct[index].manufacturerID);
+  $("#CategoryUpdate").val(listProduct[index].categoryID);
   $("#ModalUpdateProduct").modal("show");
 }
 
+function handleUpdateProduct() {
+  const data = {
+    id: idUpdate,
+    name: $("#NameUpdate").val(),
+    price: $("#PriceUpdate").val(),
+    info: $("#InfoUpdate").val(),
+    detail: $("#DetailUpdate").val(),
+    ratingStar: $("#StarUpdate").val(),
+    imageName: $("#ImageUpdate").val(),
+    manufacturerID: $("#ManufacturerUpdate").val(),
+    categoryID: $("#CategoryUpdate").val(),
+  }
+
+  const index = listProduct.findIndex((product) => +product.id === +idUpdate);
+  listProduct[index] = data;
+  localStorage.setItem("listProduct", JSON.stringify(listProduct));
+  fetchListProduct();
+  $("#ModalUpdateProduct").modal("hide");
+}
+function handleResetUpdate() {
+  $("#NameUpdate").val("");
+  $("#PriceUpdate").val("");
+  $("#InfoUpdate").val("");
+  $("#DetailUpdate").val("");
+  $("#StarUpdate").val("");
+  $("#ImageUpdate").val("");
+  $("#ManufacturerUpdate").val("");
+  $("#CategoryUpdate").val("");
+}
+
+function handleDeleteProduct(id) {
+  console.log(id);
+  swal({
+    title: "Are you sure?",
+    text: "",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true,
+  })
+    .then((willDelete) => {
+      if (willDelete) {
+        const data = listProduct.filter((product) => +product.id !== +id);
+        localStorage.setItem("listProduct", JSON.stringify(data));
+        setTimeout(() => {
+          fetchListProduct();
+        }, 500);
+        swal("deleted!", {
+          icon: "success",
+        });
+      } else {
+        swal.close();
+      }
+    });
+}
+function resetCreateAdmin() {
+  $("#Name").val("");
+  $("#Price").val("");
+  $("#Info").val("");
+  $("#Detail").val("");
+  $("#Star").val("");
+  $("#Image").val("");
+  $("#Manufacturer").val("");
+  $("#Category").val("");
+
+}
 function handleCreateProduct() {
+  resetCreateAdmin();
   $("#ModalCreateProduct").modal("show");
+}
+
+function fetchListManufactureAdmin() {
+  $("#Manufacturer").empty();
+  $("#ManufacturerUpdate").empty();
+
+  for (let index = 0; index < listManufacturer.length; index++) {
+    const manufacture = listManufacturer[index];
+    //create
+    $("#Manufacturer").append(
+      `
+      <option value="${manufacture.id}">${manufacture.name}</option>
+      `
+    );
+    //update
+    $("#ManufacturerUpdate").append(
+      `
+      <option value="${manufacture.id}">${manufacture.name}</option>
+      `
+    );
+  }
+}
+
+function fetchListCategoryAdmin() {
+  $("#Category").empty();
+  $("#CategoryUpdate").empty();
+
+  for (let index = 0; index < listCategory.length; index++) {
+    const category = listCategory[index];
+    //create
+    $("#Category").append(
+      `
+      <option value="${category.id}">${category.name}</option>
+      `
+    );
+    //update
+    $("#CategoryUpdate").append(
+      `
+      <option value="${category.id}">${category.name}</option>
+      `
+    );
+  }
+}
+function CreateNewProduct() {
+  const data = {
+    id: Math.floor(Math.random() * 10000),
+    name: $("#Name").val(),
+    price: $("#Price").val(),
+    info: $("#Info").val(),
+    detail: $("#Detail").val(),
+    ratingStar: $("#Star").val(),
+    imageName: $("#Image").val(),
+    manufacturerID: $("#Manufacturer").val(),
+    categoryID: $("#Category").val(),
+  }
+  console.log(123, data);
+  listProduct.push(data);
+  localStorage.setItem("listProduct", JSON.stringify(listProduct));
+  fetchListProduct();
+  $("#ModalCreateProduct").modal("hide");
+
 }
