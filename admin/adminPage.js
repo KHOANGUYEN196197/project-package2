@@ -7,6 +7,11 @@ var idUpdate = "";
 
 
 $(function () {
+  var isLoggedIn = localStorage.getItem("isLoggedIn");
+  if (!isLoggedIn) {
+    alert("can dang nhap de truy cap");
+    window.location.href = "../login/index.html"
+  }
   $("#menu-admin").load("./menuAdmin.html");
   $("#sidebar-admin").load("./sideBarAdmin.html");
   $("#filter-manufacturers").load("./filterManufacturers.html");
@@ -75,41 +80,50 @@ function checkLocal() {
 }
 
 function fetchListProduct() {
-  const listProductLocal = JSON.parse(localStorage.getItem("listProduct"));
+
+
+  // const listProductLocal = JSON.parse(localStorage.getItem("listProduct"));
   const listManufacturerLocal = JSON.parse(localStorage.getItem("listManufacturer"));
   const listCategoryLocal = JSON.parse(localStorage.getItem("listCategory"));
-
-  listProduct = listProductLocal ? listProductLocal : [];
+  // listProduct = listProductLocal ? listProductLocal : [];
   listManufacturer = listManufacturerLocal ? listManufacturerLocal : []
   listCategory = listCategoryLocal ? listCategoryLocal : []
+
+
 
   fetchListManufactureAdmin();
   fetchListCategoryAdmin();
 
 
-
-  console.log(123, { listProductLocal, listManufacturerLocal, listCategoryLocal });
-
-
   $("#tbProductAdmin").empty();
+  $.ajax({
+    type: "GET",
+    url: "https://64db7749593f57e435b1000a.mockapi.io/products",
+    // data: {}
+    success: function (res, status) {
+      if (status === "success") {
+        listProduct = res;
+        listProduct.forEach(product => {
+          $("#tbProductAdmin").append(`
+          <tr style="vertical-align: middle">
+            <td>${product.id}</td>
+            <td>${product.name}</td>
+            <td>${product.price}</td>
+            <td>${product.info}</td>
+            <td>${product.detail}</td>
+            <td>${product.ratingStar}</td>
+            <td> <img style="width: 50px; height: 50px" src="${product.imageName}"/> </td>
+            <td>${listManufacturer.filter((manufacture) => manufacture.id === +product.manufacturerID)[0].name}</td>
+            <td>${listCategory.find((category) => category.id === +product.categoryID).name}</td>
+            <td> <button onclick="handleEditProduct(${product.id})" type="button" class="btn btn-warning"> Edit </button> </td>
+            <td> <button onClick="handleDeleteProduct(${product.id})" type="button" class="btn btn-danger">Delete</button> </td>
+          </tr>
+          `)
+        });
+      }
+    }
+  })
 
-  listProduct.forEach(product => {
-    $("#tbProductAdmin").append(`
-    <tr style="vertical-align: middle">
-      <td>${product.id}</td>
-      <td>${product.name}</td>
-      <td>${product.price}</td>
-      <td>${product.info}</td>
-      <td>${product.detail}</td>
-      <td>${product.ratingStar}</td>
-      <td> <img style="width: 50px; height: 50px" src="${product.imageName}"/> </td>
-      <td>${listManufacturer.filter((manufacture) => manufacture.id === +product.manufacturerID)[0].name}</td>
-      <td>${listCategory.find((category) => category.id === +product.categoryID).name}</td>
-      <td> <button onclick="handleEditProduct(${product.id})" type="button" class="btn btn-warning"> Edit </button> </td>
-      <td> <button onClick="handleDeleteProduct(${product.id})" type="button" class="btn btn-danger">Delete</button> </td>
-    </tr>
-    `)
-  });
 }
 
 function handleEditProduct(id) {
@@ -140,13 +154,22 @@ function handleUpdateProduct() {
     categoryID: $("#CategoryUpdate").val(),
   }
 
-  const index = listProduct.findIndex((product) => +product.id === +idUpdate);
-  listProduct[index] = data;
-  localStorage.setItem("listProduct", JSON.stringify(listProduct));
-  fetchListProduct();
-  $("#ModalUpdateProduct").modal("hide");
+  // const index = listProduct.findIndex((product) => +product.id === +idUpdate);
+  // listProduct[index] = data;
+  // localStorage.setItem("listProduct", JSON.stringify(listProduct));
+  $.ajax({
+    type: "PUT",
+    url: `https://64db7749593f57e435b1000a.mockapi.io/products/${idUpdate}`,
+    data: data,
+    success: function (res, status) {
+      fetchListProduct();
+      $("#ModalUpdateProduct").modal("hide");
+    }
+  })
+
 }
 function handleResetUpdate() {
+  //reset cho modal update
   $("#NameUpdate").val("");
   $("#PriceUpdate").val("");
   $("#InfoUpdate").val("");
@@ -155,6 +178,18 @@ function handleResetUpdate() {
   $("#ImageUpdate").val("");
   $("#ManufacturerUpdate").val("");
   $("#CategoryUpdate").val("");
+}
+function resetCreateAdmin() {
+  //reset cho modal create
+  $("#Name").val("");
+  $("#Price").val("");
+  $("#Info").val("");
+  $("#Detail").val("");
+  $("#Star").val("");
+  $("#Image").val("");
+  $("#Manufacturer").val("");
+  $("#Category").val("");
+
 }
 
 function handleDeleteProduct(id) {
@@ -168,30 +203,29 @@ function handleDeleteProduct(id) {
   })
     .then((willDelete) => {
       if (willDelete) {
-        const data = listProduct.filter((product) => +product.id !== +id);
-        localStorage.setItem("listProduct", JSON.stringify(data));
-        setTimeout(() => {
-          fetchListProduct();
-        }, 500);
-        swal("deleted!", {
-          icon: "success",
-        });
+        // const data = listProduct.filter((product) => +product.id !== +id);
+        // localStorage.setItem("listProduct", JSON.stringify(data));
+        // setTimeout(() => {
+        //   fetchListProduct();
+        // }, 500);
+
+        $.ajax({
+          type: "DELETE",
+          url: `https://64db7749593f57e435b1000a.mockapi.io/products/${id}`,
+          success: function (res, status) {
+            fetchListProduct();
+            swal("deleted!", {
+              icon: "success",
+            });
+          }
+        })
+
       } else {
         swal.close();
       }
     });
 }
-function resetCreateAdmin() {
-  $("#Name").val("");
-  $("#Price").val("");
-  $("#Info").val("");
-  $("#Detail").val("");
-  $("#Star").val("");
-  $("#Image").val("");
-  $("#Manufacturer").val("");
-  $("#Category").val("");
 
-}
 function handleCreateProduct() {
   resetCreateAdmin();
   $("#ModalCreateProduct").modal("show");
@@ -251,9 +285,21 @@ function CreateNewProduct() {
     categoryID: $("#Category").val(),
   }
   console.log(123, data);
-  listProduct.push(data);
-  localStorage.setItem("listProduct", JSON.stringify(listProduct));
-  fetchListProduct();
-  $("#ModalCreateProduct").modal("hide");
+  // listProduct.push(data);
+  // localStorage.setItem("listProduct", JSON.stringify(listProduct));
+  $.ajax({
+    type: "POST",
+    url: "https://64db7749593f57e435b1000a.mockapi.io/products",
+    data: data,
+    success: function (res, status) {
+      fetchListProduct();
+      $("#ModalCreateProduct").modal("hide");
+    }
+  })
 
+}
+
+function logout() {
+  localStorage.removeItem("isLoggedIn");
+  window.location.href = "../home/index.html"
 }
