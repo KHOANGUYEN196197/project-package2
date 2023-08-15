@@ -233,9 +233,19 @@ function handleCreateProduct() {
 function fetchListManufactureAdmin() {
   $("#Manufacturer").empty();
   $("#ManufacturerUpdate").empty();
+  $("#filter").empty();
 
   for (let index = 0; index < listManufacturer.length; index++) {
     const manufacture = listManufacturer[index];
+    // filter munfacture 
+    $("#filter").append(
+      `
+      <li class="list-group-item">
+    <button onClick="filterByManuFacture(${manufacture.id})" type="button" class="btnClass">${manufacture.name}</button>
+  </li>
+      `
+    );
+
     //create
     $("#Manufacturer").append(
       `
@@ -249,6 +259,13 @@ function fetchListManufactureAdmin() {
       `
     );
   }
+
+}
+
+function filterByManuFacture(id) {
+  console.log(123, id);
+  console.log(234, listProduct);
+
 }
 
 function fetchListCategoryAdmin() {
