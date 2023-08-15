@@ -98,8 +98,7 @@ function fetchListProduct() {
   $("#tbProductAdmin").empty();
   $.ajax({
     type: "GET",
-    url: "https://64db7749593f57e435b1000a.mockapi.io/products",
-    // data: {}
+    url: `https://64db7749593f57e435b1000a.mockapi.io/products`,
     success: function (res, status) {
       if (status === "success") {
         listProduct = res;
