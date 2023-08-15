@@ -271,9 +271,17 @@ function filterByManuFacture(id) {
 function fetchListCategoryAdmin() {
   $("#Category").empty();
   $("#CategoryUpdate").empty();
+  $("#select-category").empty();
 
   for (let index = 0; index < listCategory.length; index++) {
     const category = listCategory[index];
+    // filter category
+    $("#select-category").append(
+      `
+      <option value="${category.id}">${category.name}</option>
+      `
+    );
+
     //create
     $("#Category").append(
       `
@@ -287,6 +295,14 @@ function fetchListCategoryAdmin() {
       `
     );
   }
+}
+
+function filterByCategory(event) {
+  console.log(event.target.value);
+  console.log(234, listProduct);
+}
+function changeSearch(event) {
+  console.log(event.target.value);
 }
 function CreateNewProduct() {
   const data = {
