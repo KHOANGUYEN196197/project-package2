@@ -2,6 +2,7 @@ var listProduct = [];
 var listManufacturer = [];
 var listCategory = [];
 var idUpdate = "";
+var dataFilter = [];
 
 
 
@@ -119,6 +120,19 @@ function fetchListProduct() {
           </tr>
           `)
         });
+      }
+    }
+  })
+
+}
+
+function saveDataForFilter() {
+  $.ajax({
+    type: "GET",
+    url: `https://64db7749593f57e435b1000a.mockapi.io/products`,
+    success: function (res, status) {
+      if (status === "success") {
+        dataFilter = res;
       }
     }
   })
@@ -263,8 +277,29 @@ function fetchListManufactureAdmin() {
 }
 
 function filterByManuFacture(id) {
-  console.log(123, id);
-  console.log(234, listProduct);
+  saveDataForFilter();
+  setTimeout(() => {
+    const data = dataFilter.filter((data => +data.manufacturerID === id))
+    listProduct = data;
+    $("#tbProductAdmin").empty();
+    listProduct.forEach(product => {
+      $("#tbProductAdmin").append(`
+      <tr style="vertical-align: middle">
+        <td>${product.id}</td>
+        <td>${product.name}</td>
+        <td>${product.price}</td>
+        <td>${product.info}</td>
+        <td>${product.detail}</td>
+        <td>${product.ratingStar}</td>
+        <td> <img style="width: 50px; height: 50px" src="${product.imageName}"/> </td>
+        <td>${listManufacturer.filter((manufacture) => manufacture.id === +product.manufacturerID)[0].name}</td>
+        <td>${listCategory.find((category) => category.id === +product.categoryID).name}</td>
+        <td> <button onclick="handleEditProduct(${product.id})" type="button" class="btn btn-warning"> Edit </button> </td>
+        <td> <button onClick="handleDeleteProduct(${product.id})" type="button" class="btn btn-danger">Delete</button> </td>
+      </tr>
+      `)
+    });
+  }, 500);
 
 }
 
@@ -272,6 +307,11 @@ function fetchListCategoryAdmin() {
   $("#Category").empty();
   $("#CategoryUpdate").empty();
   $("#select-category").empty();
+  $("#select-category").append(
+    `
+    <option value="0">Choice</option>
+    `
+  );
 
   for (let index = 0; index < listCategory.length; index++) {
     const category = listCategory[index];
@@ -298,8 +338,30 @@ function fetchListCategoryAdmin() {
 }
 
 function filterByCategory(event) {
-  console.log(event.target.value);
-  console.log(234, listProduct);
+  const id = event.target.value
+  saveDataForFilter();
+  setTimeout(() => {
+    const data = dataFilter.filter((data => +data.categoryID === +id))
+    listProduct = data;
+    $("#tbProductAdmin").empty();
+    listProduct.forEach(product => {
+      $("#tbProductAdmin").append(`
+      <tr style="vertical-align: middle">
+        <td>${product.id}</td>
+        <td>${product.name}</td>
+        <td>${product.price}</td>
+        <td>${product.info}</td>
+        <td>${product.detail}</td>
+        <td>${product.ratingStar}</td>
+        <td> <img style="width: 50px; height: 50px" src="${product.imageName}"/> </td>
+        <td>${listManufacturer.filter((manufacture) => manufacture.id === +product.manufacturerID)[0].name}</td>
+        <td>${listCategory.find((category) => category.id === +product.categoryID).name}</td>
+        <td> <button onclick="handleEditProduct(${product.id})" type="button" class="btn btn-warning"> Edit </button> </td>
+        <td> <button onClick="handleDeleteProduct(${product.id})" type="button" class="btn btn-danger">Delete</button> </td>
+      </tr>
+      `)
+    });
+  }, 500);
 }
 function changeSearch(event) {
   console.log(event.target.value);
